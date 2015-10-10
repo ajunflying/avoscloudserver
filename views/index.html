@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript">
+		function Test(){}
+		Test.create = function(){};
+		Test.prototype.fc = function(){};
+		var test = new Test();
+		console.log(test);
+		function GetHttpRequestTest() {
+			var protocol = $("#getSelect").val();
+			if (protocol == 0) {
+				alert("请选择接口");
+				return;
+			}
+			var url = $("#getUrl").val() ;
+			$.get(url, null, function (reply, status) {
+				$("#result").html("<pre>" + JSON.stringify(reply) + "</pre>");
+			});
+		}
+		function PostHttpRequestTest() {
+			var protocol = $("#postSelect").val();
+			if (!protocol) {
+				alert("请选择接口");
+				return;
+			}
+			var post = $("#postBody").val().toString().replace(/(\r)*\n/g, "").replace(/\s/g, "");
+			if (!post) {
+				alert("请求数据为空");
+				return;
+			} else {
+				post = JSON.parse(post);
+			}
+			$.post("/entry", post, function (reply, status) {
+				if (status === "success")
+					$("#result").html("<pre>" + JSON.stringify(reply, null, "\t") + "</pre>");
+				else
+					alert("error");
+			});
+		}
+
+		function createObject() {
+			var name = $("#table").val();
+			var author = $("#author").val();
+			if (!name) {
+				alert("表名不能为空");
+				return;
+			}
+			$.post("/create", {name: name, author: author}, function (reply, status) {
+				$("#result").html("<pre>" + JSON.stringify(reply) + "</pre>");
+			});
+		}
+		function changeProtocol(type) {
+			if (type == 2) {
+				var protocol = $("#postSelect").val();
+				if (protocol) {
+					var str = "{\r\t\"protocol\":" + parseInt(protocol) + ",\r\t\"body\":{\r\r\t}\r}";
+					$("#postBody").val(str);
+				} else {
+
+				}
+			}
+			if (type == 1) {
+				var protocol = $("#getSelect").val();
+				if (protocol) {
+					$("#getUrl").val($("#getUrl").val() + "protocol=" + protocol);
+				} else {
+
+				}
+			}
+		}
+	</script>
+</head>
+<body>
+<b>CloudServer</b>
+<br/><br/>
+作者<input type="text" id="author"/>
+表名<input type="text" id="table"/><input type="button" value="创建表对象" onclick="createObject()"/>
+<br/><br/>
+<a href="javascript:;" onclick="javascript:;$('#div1').toggle();">折叠/展开</a>
+
+<div id="div1">
+	<select id="getSelect" onchange="changeProtocol(1)">
+		<option value="0">——GET请求——</option>
+		<% for(var k in get){%>
+		<option value="<%= get[k] %>"><%= k %></option>
+		<%} %>
+	</select>
+	<input type="button" value="GetHttpRequestTest" onclick="GetHttpRequestTest()"/>
+	<br/>
+	<textarea id="getUrl" rows="1" cols="70">/entry?</textarea>
+	<br/><br/>
+	<select id="postSelect" onchange="changeProtocol(2)">
+		<option value="">——POST请求——</option>
+		<% for(var k in post){%>
+		<option value="<%= post[k] %>"><%= k %></option>
+		<%} %>
+	</select>
+	<input type="button" value="PostHttpRequestTest" onclick="PostHttpRequestTest()"/>
+	<br/>
+	<textarea id="postBody" rows="10" cols="70"></textarea>
+</div>
+<br/><br/>
+
+<div id="result" style="width:96%; height: 300px; overflow-y: auto; border: 1px gainsboro solid; padding: 20px;
+	 word-wrap:break-word; word-break:break-all;display:block;">
+
+</div>
+<br/><br/><br/><br/><br/><br/><br/><br/>
+</body>
+</html>
